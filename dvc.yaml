@@ -1,0 +1,50 @@
+# DVC Pipeline Definition
+# Three stages: preprocess -> train -> evaluate
+
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+      - data/netflix_titles.csv
+      - src/preprocess.py
+    params:
+      - preprocess
+    outs:
+      - data/netflix_cleaned.csv
+
+  train:
+    cmd: python src/train.py
+    deps:
+      - data/netflix_cleaned.csv
+      - src/train.py
+    params:
+      - train
+    outs:
+      - models/tfidf_vectorizer.pkl
+      - models/tfidf_matrix.pkl
+      - models/movie_titles.pkl
+      - models/movie_genres.pkl
+      - models/evaluation_data.csv
+    metrics:
+      - metrics.json:
+          cache: false
+
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+      - models/tfidf_matrix.pkl
+      - models/movie_titles.pkl
+      - models/movie_genres.pkl
+      - src/evaluate.py
+    params:
+      - evaluate
+    plots:
+      - reports/precision_recall_curves.png:
+          cache: false
+      - reports/metric_comparison.png:
+          cache: false
+      - reports/metrics_heatmap.png:
+          cache: false
+    metrics:
+      - eval_metrics.json:
+          cache: false
