@@ -1,0 +1,37 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.py[cod]
+
+# MLflow data
+mlruns/
+mlartifacts/
+
+# Model artifacts (tracked by DVC)
+models/*.pkl
+models/*.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Environment variables
+.env
+
+# DVC cache
+.dvc/cache/
+.dvc/tmp/
+
+# Generated metrics and reports
+metrics.json
+eval_metrics.json
+reports/*.png
+reports/*.json
