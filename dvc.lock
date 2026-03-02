@@ -1,0 +1,115 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+    - path: data/netflix_titles.csv
+      hash: md5
+      md5: 0bc7e8d9621caab0a32f46d054faca7f
+      size: 3399671
+    - path: src/preprocess.py
+      hash: md5
+      md5: 1513d15db7d32eedecfd61307fdc0fcb
+      size: 2577
+    params:
+      params.yaml:
+        preprocess:
+          min_description_length: 10
+          fill_missing_with: No description available
+    outs:
+    - path: data/netflix_cleaned.csv
+      hash: md5
+      md5: 10cad3de4b65b2b30a83d09db6117729
+      size: 6186324
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/netflix_cleaned.csv
+      hash: md5
+      md5: 10cad3de4b65b2b30a83d09db6117729
+      size: 6186324
+    - path: src/train.py
+      hash: md5
+      md5: 17130c6e4f1ef4def16d2e1b234da205
+      size: 6343
+    params:
+      params.yaml:
+        train:
+          max_features: 5000
+          ngram_range_min: 1
+          ngram_range_max: 2
+          top_n_recommendations: 5
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: fc23a733e41abea7a65f728a8fcb9baa
+      size: 162
+    - path: models/evaluation_data.csv
+      hash: md5
+      md5: 10cad3de4b65b2b30a83d09db6117729
+      size: 6186324
+    - path: models/movie_genres.pkl
+      hash: md5
+      md5: 421f73c0ad63ec06fe47d1d5f9861089
+      size: 40932
+    - path: models/movie_titles.pkl
+      hash: md5
+      md5: 4b846a136f8a17b1805230c668872084
+      size: 183060
+    - path: models/tfidf_matrix.pkl
+      hash: md5
+      md5: cc7111c6a5ee9307d769839fe1b13e7f
+      size: 2964403
+    - path: models/tfidf_vectorizer.pkl
+      hash: md5
+      md5: 6a60022a8405b3eb8105292f4c051542
+      size: 185066
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: models/movie_genres.pkl
+      hash: md5
+      md5: 421f73c0ad63ec06fe47d1d5f9861089
+      size: 40932
+    - path: models/movie_titles.pkl
+      hash: md5
+      md5: 4b846a136f8a17b1805230c668872084
+      size: 183060
+    - path: models/tfidf_matrix.pkl
+      hash: md5
+      md5: cc7111c6a5ee9307d769839fe1b13e7f
+      size: 2964403
+    - path: src/evaluate.py
+      hash: md5
+      md5: 7d576a92fd1908cd3a71d04a6e6f8e8b
+      size: 34463
+    params:
+      params.yaml:
+        evaluate:
+          k_values:
+          - 3
+          - 5
+          - 10
+          - 15
+          - 20
+          num_test_samples: 300
+          min_precision_at_5: 0.3
+          min_hit_rate: 0.6
+          random_seed: 42
+    outs:
+    - path: eval_metrics.json
+      hash: md5
+      md5: 2dd9920dce59cbfb812f5f50e5d96d03
+      size: 351
+    - path: reports/metric_comparison.png
+      hash: md5
+      md5: 5a5a0a8a70cc928967c1aaf047ad89dc
+      size: 67393
+    - path: reports/metrics_heatmap.png
+      hash: md5
+      md5: 1bd4bb43c7654c32402100738a1a46ee
+      size: 79259
+    - path: reports/precision_recall_curves.png
+      hash: md5
+      md5: e8e195c6f1a3abed3aeb38a15c365bf1
+      size: 98495

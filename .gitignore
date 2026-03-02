@@ -34,4 +34,4 @@ Thumbs.db
 metrics.json
 eval_metrics.json
 reports/*.png
-reports/*.json
+reports/*.json"data\netflix_cleaned.csv" 

@@ -1,0 +1,97 @@
+{
+  "model": "content_based_tfidf",
+  "num_test_queries": 300,
+  "num_total_items": 8807,
+  "mean_average_precision": 0.8472,
+  "mean_diversity_at_5": 0.7836,
+  "metrics_by_k": {
+    "3": {
+      "precision": 0.8278,
+      "recall": 0.0022,
+      "ndcg": 0.9083,
+      "hit_rate": 0.9467
+    },
+    "5": {
+      "precision": 0.8233,
+      "recall": 0.0035,
+      "ndcg": 0.911,
+      "hit_rate": 0.9667
+    },
+    "10": {
+      "precision": 0.8207,
+      "recall": 0.0069,
+      "ndcg": 0.9176,
+      "hit_rate": 0.9967
+    },
+    "15": {
+      "precision": 0.8147,
+      "recall": 0.0102,
+      "ndcg": 0.9189,
+      "hit_rate": 0.9967
+    },
+    "20": {
+      "precision": 0.8112,
+      "recall": 0.0136,
+      "ndcg": 0.9206,
+      "hit_rate": 1.0
+    }
+  },
+  "baselines": {
+    "random": {
+      "3": {
+        "precision": 0.25,
+        "hit_rate": 0.5133
+      },
+      "5": {
+        "precision": 0.25,
+        "hit_rate": 0.6567
+      },
+      "10": {
+        "precision": 0.248,
+        "hit_rate": 0.8367
+      },
+      "15": {
+        "precision": 0.2442,
+        "hit_rate": 0.8833
+      },
+      "20": {
+        "precision": 0.242,
+        "hit_rate": 0.9167
+      }
+    },
+    "popularity": {
+      "3": {
+        "precision": 0.4733,
+        "hit_rate": 0.4733
+      },
+      "5": {
+        "precision": 0.4733,
+        "hit_rate": 0.4733
+      },
+      "10": {
+        "precision": 0.4733,
+        "hit_rate": 0.4733
+      },
+      "15": {
+        "precision": 0.4733,
+        "hit_rate": 0.4733
+      },
+      "20": {
+        "precision": 0.4733,
+        "hit_rate": 0.4733
+      }
+    }
+  },
+  "quality_gates": {
+    "precision_at_5_threshold": 0.3,
+    "precision_at_5_actual": 0.8233,
+    "precision_at_5_passed": true,
+    "hit_rate_threshold": 0.6,
+    "hit_rate_actual": 0.9667,
+    "hit_rate_passed": true,
+    "beats_random_baseline": true,
+    "beats_popularity_baseline": true,
+    "overall_pass": true
+  },
+  "coverage": 0.055
+}
