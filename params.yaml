@@ -1,0 +1,21 @@
+# Configuration parameters for the Netflix Recommendation System
+
+preprocess:
+  min_description_length: 10
+  fill_missing_with: "No description available"
+
+train:
+  max_features: 5000
+  ngram_range_min: 1
+  ngram_range_max: 2
+  top_n_recommendations: 5
+
+evaluate:
+  k_values: [3, 5, 10, 15, 20]
+  num_test_samples: 300
+  min_precision_at_5: 0.3
+  min_hit_rate: 0.6
+  random_seed: 42
+
+api:
+  default_title: "Stranger Things"
