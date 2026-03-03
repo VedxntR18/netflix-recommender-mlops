@@ -80,7 +80,7 @@ netflix-recommender-mlops/
 ```
 
 ## Team:
-
+```
 23AM1070 Vedant Vaibhav Rangnekar B2
 23AM1063 Vibhav Sudhir Madhavi B3
 23AM1062 Vansh Dipakkumar Patel B3
@@ -88,3 +88,4 @@ netflix-recommender-mlops/
 College: RAIT, Navi Mumbai
 Course: CSE AIML, 3rd Year
 Subject: MLOps Skill-Based Lab
+```
