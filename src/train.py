@@ -41,6 +41,13 @@ def train_model():
     params = load_params()
     train_params = params["train"]
 
+    # --- NEW: FIX FOR GITHUB ACTIONS URI ERROR ---
+    # We force the tracking URI to an absolute path so the GitHub runner
+    # knows exactly where to save both metrics and model artifacts locally.
+    db_path = os.path.abspath("mlflow.db").replace("\\", "/")
+    mlflow.set_tracking_uri(f"sqlite:///{db_path}")
+    # ---------------------------------------------
+
     # Step 1: Load cleaned data
     cleaned_data_path = os.path.join("data", "netflix_cleaned.csv")
 
@@ -52,12 +59,20 @@ def train_model():
     df = pd.read_csv(cleaned_data_path)
     print(f"Loaded {len(df)} cleaned entries")
 
-# Step 2: Set up MLflow experiment
-    # We use the client to check if the experiment is in a 'deleted' state
+    # Step 2: Set up MLflow experiment
     client = mlflow.tracking.MlflowClient()
-    exp_name = "netflix-recommendation-experiment"
+    
+    # WE CHANGED THE NAME HERE to force MLflow to create a brand new, clean experiment
+    exp_name = "netflix-recommender-production" 
     
     experiment = client.get_experiment_by_name(exp_name)
+    
+    # If the experiment exists but was deleted, restore it
+    if experiment and experiment.lifecycle_stage == "deleted":
+        print(f"Restoring deleted experiment: {exp_name}")
+        client.restore_experiment(experiment.experiment_id)
+    
+    mlflow.set_experiment(exp_name)
     
     # If the experiment exists but was deleted, restore it
     if experiment and experiment.lifecycle_stage == "deleted":
