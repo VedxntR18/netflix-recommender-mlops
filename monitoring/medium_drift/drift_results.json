@@ -1,0 +1,45 @@
+{
+  "overall_dataset_drift": true,
+  "drift_share": 0.6667,
+  "columns_analyzed": 3,
+  "num_drifted": 2,
+  "drifted_columns": [
+    "type",
+    "country"
+  ],
+  "column_details": {
+    "type": {
+      "chi2_statistic": 53.2922,
+      "p_value": 0.0,
+      "drifted": true,
+      "num_categories_ref": 2,
+      "num_categories_cur": 2,
+      "num_new_categories": 0
+    },
+    "listed_in": {
+      "chi2_statistic": 0.0,
+      "p_value": 1.0,
+      "drifted": false,
+      "num_categories_ref": 514,
+      "num_categories_cur": 145,
+      "num_new_categories": 8
+    },
+    "country": {
+      "chi2_statistic": 960.7489,
+      "p_value": 0.0,
+      "drifted": true,
+      "num_categories_ref": 749,
+      "num_categories_cur": 83,
+      "num_new_categories": 0
+    }
+  },
+  "test_method": "chi_square",
+  "significance_level": 0.05,
+  "reference_size": 8807,
+  "current_size": 500,
+  "evidently_version": "0.7.20",
+  "evidently_info": {
+    "item_0": "type='evidently:metric_container:DataDriftPreset' include_tests=True columns=None embeddings=None embeddings_drift_method=None drift_share=0.5 method=None cat_method=None num_method=None text_method=N",
+    "metric_0": "type='evidently:metric_container:DataDriftPreset' include_tests=True columns=None embeddings=None embeddings_drift_method=None drift_share=0.5 method=None cat_method=None num_method=None text_method=None per_column_method=None threshold=None cat_threshold=None num_threshold=None text_threshold=None per_column_threshold=None"
+  }
+}
