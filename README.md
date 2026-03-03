@@ -57,13 +57,14 @@ mlflow ui
 
 # Run monitoring
 python monitoring/monitor.py
+```
 
-Live API
+## Live API
 https://netflix-recommender-api.onrender.com/docs
 
 
-Project Structure
-text
+## Project Structure
+
 netflix-recommender-mlops/
 ├── .github/workflows/ci-cd.yml    # CI/CD pipeline
 ├── api/app.py                     # FastAPI REST API
@@ -77,7 +78,8 @@ netflix-recommender-mlops/
 ├── params.yaml                    # Configuration
 └── requirements.txt               # Dependencies
 
-Team:
+## Team:
+
 23AM1070 Vedant Vaibhav Rangnekar B2
 23AM1063 Vibhav Sudhir Madhavi B3
 23AM1062 Vansh Dipakkumar Patel B3
