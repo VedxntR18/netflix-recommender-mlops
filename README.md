@@ -64,7 +64,7 @@ https://netflix-recommender-api.onrender.com/docs
 
 
 ## Project Structure
-
+```text
 netflix-recommender-mlops/
 ├── .github/workflows/ci-cd.yml    # CI/CD pipeline
 ├── api/app.py                     # FastAPI REST API
@@ -77,6 +77,7 @@ netflix-recommender-mlops/
 ├── dvc.yaml                       # DVC pipeline (3 stages)
 ├── params.yaml                    # Configuration
 └── requirements.txt               # Dependencies
+```
 
 ## Team:
 
