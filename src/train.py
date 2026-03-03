@@ -52,11 +52,22 @@ def train_model():
     df = pd.read_csv(cleaned_data_path)
     print(f"Loaded {len(df)} cleaned entries")
 
-    # Step 2: Set up MLflow experiment
-    mlflow.set_experiment("netflix-recommendation-experiment")
+# Step 2: Set up MLflow experiment
+    # We use the client to check if the experiment is in a 'deleted' state
+    client = mlflow.tracking.MlflowClient()
+    exp_name = "netflix-recommendation-experiment"
+    
+    experiment = client.get_experiment_by_name(exp_name)
+    
+    # If the experiment exists but was deleted, restore it
+    if experiment and experiment.lifecycle_stage == "deleted":
+        print(f"Restoring deleted experiment: {exp_name}")
+        client.restore_experiment(experiment.experiment_id)
+    
+    mlflow.set_experiment(exp_name)
 
     with mlflow.start_run(run_name="tfidf-content-based-v1") as run:
-
+        # Using run.info.run_id here will turn the 'mlflow' import bright
         print(f"MLflow Run ID: {run.info.run_id}")
 
         # Step 3: Log parameters
