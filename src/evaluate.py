@@ -1,20 +1,3 @@
-"""
-evaluate.py - Comprehensive Evaluation of the Netflix Recommendation Model.
-
-What this script does:
-1. Loads the trained model and data
-2. Creates "ground truth" based on genre overlap
-3. Computes standard recommendation metrics (Precision, Recall, NDCG, etc.)
-4. Compares against random and popularity baselines
-5. Generates visual charts
-6. Logs everything to MLflow
-7. Applies quality gates (PASS/FAIL based on minimum thresholds)
-8. Saves a detailed evaluation report
-
-This is the step the professor requires: PROOF that the model works,
-measured with proper metrics, compared against baselines.
-"""
-
 import pandas as pd
 import numpy as np
 import yaml
@@ -68,7 +51,6 @@ def is_relevant(genres_query, genres_candidate):
 def precision_at_k(relevant_flags, k):
     """
     Precision@K = (relevant items in top K) / K
-    
     Example: flags = [1, 0, 1, 1, 0], K=5 -> 3/5 = 0.60
     """
     if k == 0:
@@ -88,12 +70,6 @@ def recall_at_k(relevant_flags, k, total_relevant):
 
 
 def ndcg_at_k(relevant_flags, k):
-    """
-    NDCG@K: Rewards relevant items ranked higher.
-    
-    Position 1 is worth more than position 5.
-    Score of 1.0 = perfect ranking.
-    """
     if k == 0:
         return 0.0
 

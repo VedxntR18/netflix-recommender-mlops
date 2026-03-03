@@ -16,7 +16,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
 import os
-import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -181,3 +180,4 @@ def list_titles():
         "sample_titles": movie_titles[:20],
         "note": "Use /recommend endpoint with any of these titles"
     }
+    

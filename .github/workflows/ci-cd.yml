@@ -1,0 +1,141 @@
+# ─────────────────────────────────────────────────────
+# CI/CD Pipeline for Netflix Recommendation System
+# Runs on every push to main
+# ─────────────────────────────────────────────────────
+
+name: Netflix Recommender CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  # ═══════════════════════════════════════════
+  # JOB 1: Lint, Test, Evaluate
+  # ═══════════════════════════════════════════
+  lint-test-evaluate:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Flake8 Linter
+        run: |
+          echo "Running code style checks..."
+          flake8 src/ api/ tests/ \
+            --max-line-length=120 \
+            --ignore=E501,W503,E302,E303,W291,W292,W293,E266,E265,W391,E741 \
+            --count --statistics
+          echo "Linting passed!"
+
+      - name: Run full ML pipeline (preprocess + train + evaluate)
+        run: |
+          echo "Initializing DVC..."
+          dvc init --no-scm || true
+          echo "Running preprocessing..."
+          python src/preprocess.py
+          echo "Running training..."
+          python src/train.py
+          echo "Running evaluation..."
+          python src/evaluate.py
+          echo "Full pipeline complete!"
+
+      - name: Check quality gates
+        run: |
+          echo "Checking model quality gates..."
+          python -c "
+          import json
+          with open('eval_metrics.json') as f:
+              m = json.load(f)
+          print(f'Precision@5:  {m[\"precision_at_5\"]:.4f}')
+          print(f'Hit Rate@5:   {m[\"hit_rate_at_5\"]:.4f}')
+          print(f'NDCG@5:       {m[\"ndcg_at_5\"]:.4f}')
+          print(f'MAP:          {m[\"MAP\"]:.4f}')
+          print(f'Beats Random: {m[\"beats_random\"]}')
+          print(f'Quality Gate: {\"PASSED\" if m[\"quality_gate_passed\"] else \"FAILED\"}')
+          assert m['quality_gate_passed'], 'Quality gate FAILED! Model not ready for deployment.'
+          "
+          echo "Quality gate check passed!"
+
+      - name: Run Pytest
+        run: |
+          echo "Running automated tests..."
+          pytest tests/ -v --tb=short
+          echo "All tests passed!"
+
+      - name: Upload evaluation reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evaluation-reports
+          path: |
+            reports/
+            eval_metrics.json
+            metrics.json
+
+  # ═══════════════════════════════════════════
+  # JOB 2: Build Docker Image
+  # ═══════════════════════════════════════════
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: lint-test-evaluate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies and train model
+        run: |
+          pip install -r requirements.txt
+          python src/preprocess.py
+          python src/train.py
+
+      - name: Build Docker image
+        run: |
+          echo "Building Docker image..."
+          docker build -t netflix-recommender:latest .
+          echo "Docker image built successfully!"
+
+      - name: Test Docker container
+        run: |
+          echo "Testing Docker container..."
+          docker run -d -p 8000:8000 --name test-container \
+            netflix-recommender:latest
+          sleep 10
+          curl -f http://localhost:8000/health || \
+            (docker logs test-container && exit 1)
+          echo "Docker container is healthy!"
+          docker stop test-container
+          docker rm test-container
