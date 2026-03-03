@@ -1,10 +1,3 @@
-"""
-test_api.py - Automated tests for the Netflix Recommendation API.
-
-pytest finds and runs all functions that start with 'test_'.
-GitHub Actions runs these automatically on every push.
-"""
-
 from fastapi.testclient import TestClient
 import sys
 import os

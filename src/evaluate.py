@@ -6,12 +6,11 @@ import json
 import joblib
 import mlflow
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import Counter
-
+matplotlib.use('Agg')
 
 # ================================================================
 # SECTION 1: HELPER FUNCTIONS
@@ -480,7 +479,7 @@ def evaluate_model():
         # IMPROVEMENT OVER BASELINES
         # ════════════════════════════════════════════════
 
-        print(f"\n  IMPROVEMENT OVER BASELINES (at K=5):")
+        print("\n  IMPROVEMENT OVER BASELINES (at K=5):")
 
         model_p5 = results["metrics_by_k"]["5"]["precision"]
         random_p5 = results["baselines"]["random"]["5"]["precision"]
@@ -505,7 +504,7 @@ def evaluate_model():
         # COVERAGE ANALYSIS
         # ════════════════════════════════════════════════
 
-        print(f"\n  COVERAGE ANALYSIS:")
+        print("\n  COVERAGE ANALYSIS:")
 
         all_recommended = set()
         for query_idx in test_indices[:100]:
@@ -525,7 +524,7 @@ def evaluate_model():
         # QUALITY GATES (PASS / FAIL)
         # ════════════════════════════════════════════════
 
-        print(f"\n  QUALITY GATES:")
+        print("\n  QUALITY GATES:")
 
         min_prec = eval_params["min_precision_at_5"]
         min_hit = eval_params["min_hit_rate"]
@@ -571,7 +570,7 @@ def evaluate_model():
         # GENERATE VISUALIZATIONS
         # ════════════════════════════════════════════════
 
-        print(f"\n  Generating evaluation charts...")
+        print("\n  Generating evaluation charts...")
         os.makedirs("reports", exist_ok=True)
 
         # ── Chart 1: Three-Panel Line Charts ──
@@ -881,14 +880,14 @@ def evaluate_model():
     print("\n" + "=" * 70)
     print("  EVALUATION COMPLETE")
     print("=" * 70)
-    print(f"\n  Full Report:     reports/evaluation_report.json")
-    print(f"  Charts:          reports/precision_recall_curves.png")
-    print(f"                   reports/metric_comparison.png")
-    print(f"                   reports/metrics_heatmap.png")
-    print(f"                   reports/improvement_chart.png")
-    print(f"                   reports/quality_gates_dashboard.png")
-    print(f"  MLflow:          Run 'mlflow ui' to see metrics and charts")
-    print(f"\n  Overall Quality Gate: {gate_status}")
+    print("\n  Full Report:     reports/evaluation_report.json")
+    print("  Charts:          reports/precision_recall_curves.png")
+    print("                   reports/metric_comparison.png")
+    print("                   reports/metrics_heatmap.png")
+    print("                   reports/improvement_chart.png")
+    print("                   reports/quality_gates_dashboard.png")
+    print("  MLflow:          Run 'mlflow ui' to see metrics and charts")
+    print("\n  Overall Quality Gate: {gate_status}")
 
     if not overall_pass:
         print("\n  The model did not pass all quality gates.")

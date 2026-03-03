@@ -58,11 +58,11 @@ def preprocess_data():
 
     # Step 3: Create combined 'tags' column
     df["tags"] = (
-        df["listed_in"] + " " +
-        df["description"] + " " +
-        df["director"] + " " +
-        df["cast"] + " " +
-        df["country"]
+        df["listed_in"]
+        + " " + df["description"]
+        + " " + df["director"]
+        + " " + df["cast"]
+        + " " + df["country"]
     )
     df["tags"] = df["tags"].str.lower()
 
