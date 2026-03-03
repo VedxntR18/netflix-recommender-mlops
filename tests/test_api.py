@@ -2,11 +2,8 @@ from fastapi.testclient import TestClient
 import sys
 import os
 import pytest
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from api.app import app
-
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 client = TestClient(app)
 
 
