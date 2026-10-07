@@ -1,5 +1,6 @@
 # Virtual environment
 venv/
+.venv/
 
 # Python cache
 __pycache__/
@@ -7,13 +8,15 @@ __pycache__/
 *.pyo
 *.py[cod]
 
-# MLflow data
+# MLflow local state
+mlflow.db
 mlruns/
 mlartifacts/
 
-# Model artifacts (tracked by DVC)
+# Generated DVC/model artifacts
 models/*.pkl
 models/*.csv
+data/netflix_cleaned.csv
 
 # OS files
 .DS_Store
@@ -25,13 +28,13 @@ Thumbs.db
 
 # Environment variables
 .env
+.env.*
 
 # DVC cache
 .dvc/cache/
 .dvc/tmp/
 
-# Generated metrics and reports
+# Generated metrics and charts
 metrics.json
 eval_metrics.json
 reports/*.png
-reports/*.json"data\netflix_cleaned.csv" 
