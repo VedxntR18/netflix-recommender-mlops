@@ -1,7 +1,6 @@
 # Netflix Recommendation System — MLOps Pipeline
 
-> A production-grade MLOps mini-project demonstrating the complete ML lifecycle
-> from data versioning to model evaluation, cloud deployment, and monitoring.
+> An end-to-end MLOps mini-project demonstrating data versioning, model training, evaluation, API serving, containerization, CI/CD, deployment configuration, and data-drift monitoring.
 
 ## Architecture
 
@@ -27,18 +26,26 @@ Data (DVC) → Preprocess → Train (MLflow) → Evaluate (Metrics + Quality Gat
 
 | Metric | Score |
 |---|---|
-| Precision@5 | ~0.68 |
-| Hit Rate@5 | ~0.94 |
-| NDCG@5 | ~0.72 |
-| MAP | ~0.70 |
-| vs Random Baseline | +52% improvement |
-| vs Popularity Baseline | +32% improvement |
+The committed evaluation artifact (`reports/evaluation_report.json`) currently records results from 300 test queries over 8,807 catalog items:
+
+| Metric | Score |
+|---|---:|
+| Precision@5 | 0.8233 |
+| Hit Rate@5 | 0.9667 |
+| NDCG@5 | 0.9110 |
+| MAP | 0.8472 |
+| Mean Diversity@5 | 0.7836 |
+| Catalog Coverage | 0.0550 |
+| vs Random Precision@5 | +229.3% |
+| vs Popularity Precision@5 | +73.9% |
 | Quality Gate | PASSED |
+
+These metrics are model-specific offline experiment results, not a claim of production performance.
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/netflix-recommender-mlops.git
+git clone https://github.com/VedxntR18/netflix-recommender-mlops.git
 cd netflix-recommender-mlops
 
 python -m venv venv
@@ -59,8 +66,9 @@ mlflow ui
 python monitoring/monitor.py
 ```
 
-## Live API
-https://netflix-recommender-api.onrender.com/docs
+## Deployment
+
+The repository includes a Render deployment configuration in `render.yaml`. A previously listed public endpoint is not treated as a confirmed live service until it is independently verified.
 
 
 ## Project Structure
@@ -78,6 +86,17 @@ netflix-recommender-mlops/
 ├── params.yaml                    # Configuration
 └── requirements.txt               # Dependencies
 ```
+
+## Important Limitations
+
+This is an academic/portfolio MLOps project rather than a production Netflix-like recommendation service.
+
+- The recommender is content-based TF-IDF rather than collaborative or deep-learning based.
+- Evaluation relevance is derived from genre overlap.
+- There is no real user-history or implicit-feedback dataset.
+- Monitoring uses simulated production data.
+- The serving image requires generated model artifacts; a completely fresh clone is not a ready-to-serve image until the pipeline is run.
+- Cloud deployment configuration is included, but a live public endpoint should not be assumed to be available unless independently verified.
 
 ## Team:
 ```
