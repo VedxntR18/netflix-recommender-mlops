@@ -71,18 +71,11 @@ def train_model():
     
     experiment = client.get_experiment_by_name(exp_name)
     
-    # If the experiment exists but was deleted, restore it
+    # Restore a soft-deleted experiment before selecting it.
     if experiment and experiment.lifecycle_stage == "deleted":
         print(f"Restoring deleted experiment: {exp_name}")
         client.restore_experiment(experiment.experiment_id)
-    
-    mlflow.set_experiment(exp_name)
-    
-    # If the experiment exists but was deleted, restore it
-    if experiment and experiment.lifecycle_stage == "deleted":
-        print(f"Restoring deleted experiment: {exp_name}")
-        client.restore_experiment(experiment.experiment_id)
-    
+
     mlflow.set_experiment(exp_name)
 
     with mlflow.start_run(run_name="tfidf-content-based-v1") as run:
