@@ -12,14 +12,16 @@ import numpy as np
 import json
 import os
 import sys
+from pathlib import Path
 from scipy import stats
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
 
 
 def load_training_data():
     """Load the original cleaned training data."""
-    data_path = os.path.join("data", "netflix_cleaned.csv")
+    data_path = PROJECT_ROOT / "data" / "netflix_cleaned.csv"
     if not os.path.exists(data_path):
         print("ERROR: Cleaned data not found. Run: dvc repro")
         sys.exit(1)
@@ -726,14 +728,14 @@ def run_full_monitoring():
         results = generate_drift_report(
             reference_data=training_data,
             current_data=new_data,
-            output_dir=f"monitoring/{intensity}_drift"
+            output_dir=PROJECT_ROOT / "monitoring" / f"{intensity}_drift"
         )
 
         print_drift_summary(results)
         all_results[intensity] = results
 
     # Save combined results
-    combined_path = os.path.join("monitoring", "all_drift_results.json")
+    combined_path = PROJECT_ROOT / "monitoring" / "all_drift_results.json"
     with open(combined_path, "w") as f:
         json.dump(all_results, f, indent=2)
 
