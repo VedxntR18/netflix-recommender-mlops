@@ -9,24 +9,22 @@ Data (DVC) → Preprocess → Train (MLflow) → Evaluate (Metrics + Quality Gat
 → Deploy (Render) → Monitor (Evidently)
 
 
-## Tech Stack
+## MLOps Components
 
-| Component | Tool |
+| Area | Implementation |
 |---|---|
-| Data Versioning | DVC |
+| Data / Pipeline | DVC |
 | Experiment Tracking | MLflow |
-| Model Evaluation | Precision@K, Recall@K, NDCG@K, MAP, Hit Rate, Diversity |
+| Evaluation | Precision@K, Recall@K, NDCG, MAP, Hit Rate, Diversity, Coverage |
 | Model Serving | FastAPI |
 | Containerization | Docker |
 | CI/CD | GitHub Actions |
 | Cloud Deployment | Render.com |
-| Monitoring | Evidently AI |
+| Monitoring | Evidently + Chi-Square |
 
-## Evaluation Metrics
+## Key Results
 
-| Metric | Score |
-|---|---|
-The committed evaluation artifact (`reports/evaluation_report.json`) currently records results from 300 test queries over 8,807 catalog items:
+The committed evaluation artifact (`reports/evaluation_report.json`) records results from 300 test queries over an 8,807-title catalog.
 
 | Metric | Score |
 |---|---:|
@@ -68,26 +66,45 @@ python monitoring/monitor.py
 
 ## Deployment
 
-The repository includes a Render deployment configuration in `render.yaml`. A previously listed public endpoint is not treated as a confirmed live service until it is independently verified.
+The repository includes a Render deployment configuration in `render.yaml`. A public endpoint is not treated as confirmed unless independently verified.
 
 
 ## Project Structure
 ```text
 netflix-recommender-mlops/
-├── .github/workflows/ci-cd.yml    # CI/CD pipeline
-├── api/app.py                     # FastAPI REST API
-├── src/preprocess.py              # Data cleaning
-├── src/train.py                   # Model training + MLflow
-├── src/evaluate.py                # Model evaluation + quality gates
-├── monitoring/monitor.py          # Data drift detection
-├── tests/test_api.py              # Automated tests
-├── Dockerfile                     # Container definition
-├── dvc.yaml                       # DVC pipeline (3 stages)
-├── params.yaml                    # Configuration
-└── requirements.txt               # Dependencies
+├── .github/workflows/ci-cd.yml
+├── api/app.py
+├── data/netflix_titles.csv
+├── models/.gitkeep
+├── monitoring/monitor.py
+├── reports/evaluation_report.json
+├── src/preprocess.py
+├── src/train.py
+├── src/evaluate.py
+├── tests/test_api.py
+├── Dockerfile
+├── dvc.yaml
+├── dvc.lock
+├── params.yaml
+├── render.yaml
+└── requirements.txt
 ```
 
+Generated model files are intentionally excluded from Git and are produced by `dvc repro` before API/Docker execution.
+
 ## Important Limitations
+
+This is an **academic/portfolio MLOps project**, not a production Netflix-like recommendation service.
+
+- The recommender is content-based TF-IDF rather than collaborative filtering or deep learning.
+- Evaluation relevance is derived from genre overlap.
+- There is no real user-history, rating, click, or implicit-feedback dataset.
+- Catalog coverage is approximately 5.5% in the current experiment.
+- Monitoring uses simulated drift scenarios rather than live production traffic.
+- The Docker image requires generated model artifacts.
+- The Render configuration demonstrates deployment workflow but does not imply a currently live public service.
+- MLflow tracks the experiment pipeline; the recommender is a similarity-based system rather than a conventional estimator with a standard `predict()` method.
+
 
 This is an academic/portfolio MLOps project rather than a production Netflix-like recommendation service.
 
@@ -97,6 +114,29 @@ This is an academic/portfolio MLOps project rather than a production Netflix-lik
 - Monitoring uses simulated production data.
 - The serving image requires generated model artifacts; a completely fresh clone is not a ready-to-serve image until the pipeline is run.
 - Cloud deployment configuration is included, but a live public endpoint should not be assumed to be available unless independently verified.
+
+## API Example
+
+After running the pipeline and starting FastAPI:
+
+```http
+POST /recommend
+Content-Type: application/json
+
+{"title":"Stranger Things","top_n":5}
+```
+
+The API returns ranked recommendations with cosine-similarity scores. `/health` returns HTTP 503 when the model artifacts are unavailable.
+
+## Docker
+
+```bash
+dvc repro
+docker build -t netflix-recommender:latest .
+docker run --rm -p 8000:8000 netflix-recommender:latest
+```
+
+The Docker build intentionally fails when required trained artifacts are missing.
 
 ## Team:
 ```
