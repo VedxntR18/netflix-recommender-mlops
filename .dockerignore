@@ -17,6 +17,6 @@ README.md
 .dockerignore
 dvc.yaml
 dvc.lock
-#params.yaml
 metrics.json
 eval_metrics.json
+# params.yaml is copied into the image by the Dockerfile.
