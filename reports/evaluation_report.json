@@ -2,38 +2,38 @@
   "model": "content_based_tfidf",
   "num_test_queries": 300,
   "num_total_items": 8807,
-  "mean_average_precision": 0.8472,
-  "mean_diversity_at_5": 0.7836,
+  "mean_average_precision": 0.8463,
+  "mean_diversity_at_5": 0.7849,
   "metrics_by_k": {
     "3": {
-      "precision": 0.8278,
+      "precision": 0.83,
       "recall": 0.0022,
-      "ndcg": 0.9083,
+      "ndcg": 0.9064,
       "hit_rate": 0.9467
     },
     "5": {
-      "precision": 0.8233,
+      "precision": 0.826,
       "recall": 0.0035,
-      "ndcg": 0.911,
-      "hit_rate": 0.9667
+      "ndcg": 0.9116,
+      "hit_rate": 0.97
     },
     "10": {
-      "precision": 0.8207,
+      "precision": 0.8177,
       "recall": 0.0069,
-      "ndcg": 0.9176,
+      "ndcg": 0.917,
       "hit_rate": 0.9967
     },
     "15": {
-      "precision": 0.8147,
+      "precision": 0.8111,
       "recall": 0.0102,
-      "ndcg": 0.9189,
+      "ndcg": 0.9183,
       "hit_rate": 0.9967
     },
     "20": {
-      "precision": 0.8112,
+      "precision": 0.8105,
       "recall": 0.0136,
-      "ndcg": 0.9206,
-      "hit_rate": 1.0
+      "ndcg": 0.92,
+      "hit_rate": 1
     }
   },
   "baselines": {
@@ -84,14 +84,14 @@
   },
   "quality_gates": {
     "precision_at_5_threshold": 0.3,
-    "precision_at_5_actual": 0.8233,
+    "precision_at_5_actual": 0.826,
     "precision_at_5_passed": true,
     "hit_rate_threshold": 0.6,
-    "hit_rate_actual": 0.9667,
+    "hit_rate_actual": 0.97,
     "hit_rate_passed": true,
     "beats_random_baseline": true,
     "beats_popularity_baseline": true,
     "overall_pass": true
   },
-  "coverage": 0.055
+  "coverage": 0.0551
 }
