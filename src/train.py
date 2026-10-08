@@ -16,13 +16,17 @@ import json
 import joblib
 import mlflow
 import mlflow.sklearn
+from pathlib import Path
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 def load_params():
     """Read configuration parameters from params.yaml."""
-    with open("params.yaml", "r") as f:
+    with open(PROJECT_ROOT / "params.yaml", "r", encoding="utf-8") as f:
         params = yaml.safe_load(f)
     return params
 
@@ -44,12 +48,12 @@ def train_model():
     # --- NEW: FIX FOR GITHUB ACTIONS URI ERROR ---
     # We force the tracking URI to an absolute path so the GitHub runner
     # knows exactly where to save both metrics and model artifacts locally.
-    db_path = os.path.abspath("mlflow.db").replace("\\", "/")
+    db_path = (PROJECT_ROOT / "mlflow.db").as_posix()
     mlflow.set_tracking_uri(f"sqlite:///{db_path}")
     # ---------------------------------------------
 
     # Step 1: Load cleaned data
-    cleaned_data_path = os.path.join("data", "netflix_cleaned.csv")
+    cleaned_data_path = PROJECT_ROOT / "data" / "netflix_cleaned.csv"
 
     if not os.path.exists(cleaned_data_path):
         print("ERROR: Cleaned data not found. Run preprocess.py first!")
@@ -142,21 +146,22 @@ def train_model():
         mlflow.log_metric("num_shows", len(df))
 
         # Step 7: Save model artifacts
-        os.makedirs("models", exist_ok=True)
+        models_dir = PROJECT_ROOT / "models"
+        models_dir.mkdir(parents=True, exist_ok=True)
 
-        joblib.dump(tfidf, os.path.join("models", "tfidf_vectorizer.pkl"))
-        joblib.dump(tfidf_matrix, os.path.join("models", "tfidf_matrix.pkl"))
-        joblib.dump(titles_list, os.path.join("models", "movie_titles.pkl"))
+        joblib.dump(tfidf, models_dir / "tfidf_vectorizer.pkl")
+        joblib.dump(tfidf_matrix, models_dir / "tfidf_matrix.pkl")
+        joblib.dump(titles_list, models_dir / "movie_titles.pkl")
 
         # Save genre data and cleaned DataFrame for the evaluation step
         genres_list = df["listed_in"].tolist()
-        joblib.dump(genres_list, os.path.join("models", "movie_genres.pkl"))
-        df.to_csv(os.path.join("models", "evaluation_data.csv"), index=False)
+        joblib.dump(genres_list, models_dir / "movie_genres.pkl")
+        df.to_csv(models_dir / "evaluation_data.csv", index=False)
 
         print("Model artifacts saved to models/ folder")
 
         # Step 8: Log artifacts to MLflow
-        mlflow.log_artifacts("models", artifact_path="model_artifacts")
+        mlflow.log_artifacts(str(models_dir), artifact_path="model_artifacts")
 
         # Step 9: Register model in MLflow Model Registry
         mlflow.sklearn.log_model(
@@ -175,10 +180,10 @@ def train_model():
             "model_type": "content_based_tfidf"
         }
 
-        with open("metrics.json", "w") as f:
+        with open(PROJECT_ROOT / "metrics.json", "w", encoding="utf-8") as f:
             json.dump(metrics, f, indent=2)
 
-        mlflow.log_artifact("metrics.json")
+        mlflow.log_artifact(str(PROJECT_ROOT / "metrics.json"))
         print("Metrics saved to metrics.json")
 
         # Demo: Show sample recommendations
