@@ -12,11 +12,15 @@ import pandas as pd
 import yaml
 import os
 import sys
+from pathlib import Path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_params():
     """Read configuration parameters from params.yaml."""
-    with open("params.yaml", "r") as f:
+    with open(PROJECT_ROOT / "params.yaml", "r", encoding="utf-8") as f:
         params = yaml.safe_load(f)
     return params
 
@@ -36,7 +40,7 @@ def preprocess_data():
     preprocess_params = params["preprocess"]
 
     # Step 1: Load raw CSV
-    raw_data_path = os.path.join("data", "netflix_titles.csv")
+    raw_data_path = PROJECT_ROOT / "data" / "netflix_titles.csv"
 
     if not os.path.exists(raw_data_path):
         print(f"ERROR: Could not find {raw_data_path}")
@@ -77,7 +81,7 @@ def preprocess_data():
     # Step 5: Reset index and save
     df = df.reset_index(drop=True)
 
-    cleaned_data_path = os.path.join("data", "netflix_cleaned.csv")
+    cleaned_data_path = PROJECT_ROOT / "data" / "netflix_cleaned.csv"
     df.to_csv(cleaned_data_path, index=False)
 
     print(f"Saved cleaned data to {cleaned_data_path}")
