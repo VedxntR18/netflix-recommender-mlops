@@ -13,7 +13,8 @@ What is a REST API?
 """
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from pathlib import Path
 import joblib
 import os
 from sklearn.metrics.pairwise import cosine_similarity
@@ -30,8 +31,8 @@ app = FastAPI(
 # ── Define data models ──
 class RecommendationRequest(BaseModel):
     """What the user sends to the API."""
-    title: str
-    top_n: int = 5
+    title: str = Field(min_length=1)
+    top_n: int = Field(default=5, ge=1, le=20)
 
 
 class RecommendationItem(BaseModel):
@@ -56,20 +57,21 @@ class HealthResponse(BaseModel):
 
 
 # ── Load model artifacts at startup ──
-MODELS_DIR = "models"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+MODELS_DIR = PROJECT_ROOT / "models"
 
 
 def load_model_artifacts():
     """Load saved model files from disk."""
     try:
         tfidf_vectorizer = joblib.load(
-            os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl")
+            MODELS_DIR / "tfidf_vectorizer.pkl"
         )
         tfidf_matrix = joblib.load(
-            os.path.join(MODELS_DIR, "tfidf_matrix.pkl")
+            MODELS_DIR / "tfidf_matrix.pkl"
         )
         movie_titles = joblib.load(
-            os.path.join(MODELS_DIR, "movie_titles.pkl")
+            MODELS_DIR / "movie_titles.pkl"
         )
         return tfidf_vectorizer, tfidf_matrix, movie_titles
     except FileNotFoundError as e:
@@ -78,6 +80,7 @@ def load_model_artifacts():
 
 
 tfidf_vectorizer, tfidf_matrix, movie_titles = load_model_artifacts()
+titles_lower = [t.lower() for t in movie_titles] if movie_titles is not None else []
 
 
 # ── API Endpoints ──
@@ -96,10 +99,14 @@ def root():
 @app.get("/health", response_model=HealthResponse)
 def health_check():
     """Reports if the model is loaded and ready."""
+    model_loaded = movie_titles is not None and tfidf_matrix is not None
+    if not model_loaded:
+        raise HTTPException(status_code=503, detail="Model artifacts are not loaded.")
+
     return HealthResponse(
-        status="healthy" if movie_titles is not None else "unhealthy",
-        model_loaded=movie_titles is not None,
-        num_titles=len(movie_titles) if movie_titles is not None else 0
+        status="healthy",
+        model_loaded=True,
+        num_titles=len(movie_titles)
     )
 
 
@@ -117,7 +124,8 @@ def get_recommendations(request: RecommendationRequest):
 
     # Case-insensitive search
     title_lower = request.title.strip().lower()
-    titles_lower = [t.lower() for t in movie_titles]
+    if not title_lower:
+        raise HTTPException(status_code=422, detail="Title must not be blank.")
 
     if title_lower not in titles_lower:
         partial_matches = [
