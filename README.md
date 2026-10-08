@@ -30,14 +30,14 @@ The committed evaluation artifact (`reports/evaluation_report.json`) currently r
 
 | Metric | Score |
 |---|---:|
-| Precision@5 | 0.8233 |
-| Hit Rate@5 | 0.9667 |
-| NDCG@5 | 0.9110 |
-| MAP | 0.8472 |
-| Mean Diversity@5 | 0.7836 |
-| Catalog Coverage | 0.0550 |
-| vs Random Precision@5 | +229.3% |
-| vs Popularity Precision@5 | +73.9% |
+| Precision@5 | 0.8260 |
+| Hit Rate@5 | 0.9700 |
+| NDCG@5 | 0.9116 |
+| MAP | 0.8463 |
+| Mean Diversity@5 | 0.7849 |
+| Catalog Coverage | 0.0551 |
+| vs Random Precision@5 | +230.4% |
+| vs Popularity Precision@5 | +74.5% |
 | Quality Gate | PASSED |
 
 These metrics are model-specific offline experiment results, not a claim of production performance.
