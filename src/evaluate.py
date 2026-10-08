@@ -6,19 +6,33 @@ import json
 import joblib
 import mlflow
 import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import Counter
-matplotlib.use('Agg')
+from pathlib import Path
 
 # ================================================================
 # SECTION 1: HELPER FUNCTIONS
 # ================================================================
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
+def configure_mlflow():
+    """Configure a portable MLflow tracking URI."""
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+    if tracking_uri:
+        mlflow.set_tracking_uri(tracking_uri)
+    else:
+        db_path = (PROJECT_ROOT / "mlflow.db").as_posix()
+        mlflow.set_tracking_uri(f"sqlite:///{db_path}")
+
+
 def load_params():
     """Read configuration parameters from params.yaml."""
-    with open("params.yaml", "r") as f:
+    with open(PROJECT_ROOT / "params.yaml", "r", encoding="utf-8") as f:
         params = yaml.safe_load(f)
     return params
 
@@ -203,6 +217,7 @@ def evaluate_model():
     print("=" * 70)
 
     # Load parameters
+    configure_mlflow()
     params = load_params()
     eval_params = params["evaluate"]
 
@@ -214,9 +229,9 @@ def evaluate_model():
     print("\n Loading model artifacts...")
 
     required_files = [
-        "models/tfidf_matrix.pkl",
-        "models/movie_titles.pkl",
-        "models/movie_genres.pkl"
+        str(PROJECT_ROOT / "models" / "tfidf_matrix.pkl"),
+        str(PROJECT_ROOT / "models" / "movie_titles.pkl"),
+        str(PROJECT_ROOT / "models" / "movie_genres.pkl")
     ]
 
     for f in required_files:
@@ -224,9 +239,9 @@ def evaluate_model():
             print(f"ERROR: {f} not found. Run training first: python src/train.py")
             return
 
-    tfidf_matrix = joblib.load("models/tfidf_matrix.pkl")
-    movie_titles = joblib.load("models/movie_titles.pkl")
-    movie_genres = joblib.load("models/movie_genres.pkl")
+    tfidf_matrix = joblib.load(PROJECT_ROOT / "models" / "tfidf_matrix.pkl")
+    movie_titles = joblib.load(PROJECT_ROOT / "models" / "movie_titles.pkl")
+    movie_genres = joblib.load(PROJECT_ROOT / "models" / "movie_genres.pkl")
 
     num_items = len(movie_titles)
     print(f"  Loaded {num_items} shows/movies")
@@ -571,7 +586,8 @@ def evaluate_model():
         # ════════════════════════════════════════════════
 
         print("\n  Generating evaluation charts...")
-        os.makedirs("reports", exist_ok=True)
+        reports_dir = PROJECT_ROOT / "reports"
+        reports_dir.mkdir(parents=True, exist_ok=True)
 
         # ── Chart 1: Three-Panel Line Charts ──
         # Precision@K, NDCG@K, Hit Rate@K across K values
@@ -655,7 +671,7 @@ def evaluate_model():
         axes[2].set_ylim(0, 1.05)
 
         plt.tight_layout()
-        chart1_path = os.path.join("reports", "precision_recall_curves.png")
+        chart1_path = reports_dir / "precision_recall_curves.png"
         plt.savefig(chart1_path, dpi=150, bbox_inches='tight')
         plt.close()
         print(f"  Saved: {chart1_path}")
@@ -723,7 +739,7 @@ def evaluate_model():
             )
 
         plt.tight_layout()
-        chart2_path = os.path.join("reports", "metric_comparison.png")
+        chart2_path = reports_dir / "metric_comparison.png"
         plt.savefig(chart2_path, dpi=150, bbox_inches='tight')
         plt.close()
         print(f"  Saved: {chart2_path}")
@@ -762,7 +778,7 @@ def evaluate_model():
         ax.set_xlabel('Metric', fontsize=12)
 
         plt.tight_layout()
-        chart3_path = os.path.join("reports", "metrics_heatmap.png")
+        chart3_path = reports_dir / "metrics_heatmap.png"
         plt.savefig(chart3_path, dpi=150, bbox_inches='tight')
         plt.close()
         print(f"  Saved: {chart3_path}")
@@ -796,7 +812,7 @@ def evaluate_model():
             )
 
         plt.tight_layout()
-        chart4_path = os.path.join("reports", "improvement_chart.png")
+        chart4_path = reports_dir / "improvement_chart.png"
         plt.savefig(chart4_path, dpi=150, bbox_inches='tight')
         plt.close()
         print(f"  Saved: {chart4_path}")
@@ -836,17 +852,17 @@ def evaluate_model():
         )
 
         plt.tight_layout()
-        chart5_path = os.path.join("reports", "quality_gates_dashboard.png")
+        chart5_path = reports_dir / "quality_gates_dashboard.png"
         plt.savefig(chart5_path, dpi=150, bbox_inches='tight')
         plt.close()
         print(f"  Saved: {chart5_path}")
 
         # ── Log all charts to MLflow ──
-        mlflow.log_artifacts("reports", artifact_path="evaluation_charts")
+        mlflow.log_artifacts(str(reports_dir), artifact_path="evaluation_charts")
 
         # ── Save full evaluation report as JSON ──
-        report_path = os.path.join("reports", "evaluation_report.json")
-        with open(report_path, "w") as f:
+        report_path = reports_dir / "evaluation_report.json"
+        with open(report_path, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2)
         print(f"  Saved: {report_path}")
 
@@ -868,10 +884,10 @@ def evaluate_model():
             "beats_popularity": beats_popularity
         }
 
-        with open("eval_metrics.json", "w") as f:
+        with open(PROJECT_ROOT / "eval_metrics.json", "w", encoding="utf-8") as f:
             json.dump(eval_metrics_flat, f, indent=2)
 
-        mlflow.log_artifact("eval_metrics.json")
+        mlflow.log_artifact(str(PROJECT_ROOT / "eval_metrics.json"))
 
     # ════════════════════════════════════════════════
     # FINAL SUMMARY
@@ -887,7 +903,7 @@ def evaluate_model():
     print("                   reports/improvement_chart.png")
     print("                   reports/quality_gates_dashboard.png")
     print("  MLflow:          Run 'mlflow ui' to see metrics and charts")
-    print("\n  Overall Quality Gate: {gate_status}")
+    print(f"\n  Overall Quality Gate: {gate_status}")
 
     if not overall_pass:
         print("\n  The model did not pass all quality gates.")
