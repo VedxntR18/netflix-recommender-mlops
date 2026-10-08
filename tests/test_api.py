@@ -57,7 +57,14 @@ def test_recommend_valid_title():
     assert data["input_title"].lower() == "stranger things"
     assert data["status"] == "success"
     assert 0 < len(data["recommendations"]) <= 3
-    assert all("title" in item and "similarity_score" in item for item in data["recommendations"])
+    recommendations = data["recommendations"]
+    assert all(
+        "rank" in item and "title" in item and "similarity_score" in item
+        for item in recommendations
+    )
+    assert [item["rank"] for item in recommendations] == list(range(1, len(recommendations) + 1))
+    assert all(0.0 <= item["similarity_score"] <= 1.0 for item in recommendations)
+    assert all(item["title"].lower() != "stranger things" for item in recommendations)
 
 
 def test_recommend_invalid_title():
