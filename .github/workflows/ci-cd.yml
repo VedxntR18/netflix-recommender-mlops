@@ -56,15 +56,9 @@ jobs:
 
       - name: Run full ML pipeline (preprocess + train + evaluate)
         run: |
-          echo "Initializing DVC..."
-          dvc init --no-scm || true
-          echo "Running preprocessing..."
-          python src/preprocess.py
-          echo "Running training..."
-          python src/train.py
-          echo "Running evaluation..."
-          python src/evaluate.py
-          echo "Full pipeline complete!"
+          echo "Running DVC pipeline..."
+          dvc repro
+          echo "DVC pipeline complete!"
 
       - name: Check quality gates
         run: |
@@ -119,8 +113,7 @@ jobs:
       - name: Install dependencies and train model
         run: |
           pip install -r requirements.txt
-          python src/preprocess.py
-          python src/train.py
+          dvc repro
 
       - name: Build Docker image
         run: |
@@ -134,8 +127,10 @@ jobs:
           docker run -d -p 8000:8000 --name test-container \
             netflix-recommender:latest
           sleep 10
-          curl -f http://localhost:8000/health || \
+          curl -fsS http://localhost:8000/health || \
             (docker logs test-container && exit 1)
-          echo "Docker container is healthy!"
+          curl -fsS http://localhost:8000/docs > /dev/null || \
+            (docker logs test-container && exit 1)
+          echo "Docker container is healthy and serving FastAPI docs!"
           docker stop test-container
           docker rm test-container
