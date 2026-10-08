@@ -16,7 +16,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from pathlib import Path
 import joblib
-import os
 from sklearn.metrics.pairwise import cosine_similarity
 
 
